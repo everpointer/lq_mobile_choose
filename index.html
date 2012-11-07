@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+        <title></title>
+        <meta name="description" content=""/>
+        <meta name="viewport" content="width=device-width"/>
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+        <link rel="stylesheet" href="styles/a47dadad.bootstrap.min.css"/>
+        <link rel="stylesheet" href="styles/877222c3.main.css"/>
+        <link rel="stylesheet" href="styles/1995d4f3.breadcrumbs.css"/>
+        <link rel="stylesheet" href="styles/06cc346d.breadcrumbs-slim.css"/>
+        <link rel="stylesheet" href="styles/4a66a70d.style.css"/>
+
+        <script src="scripts/vendor/cf69c6f2.modernizr.min.js"></script>
+    </head>
+    <body>
+        <div id="mainapp"></div>
+        <footer> 
+            <span class="span6 offset3">© 2012 <a href="http://lqwlshfw.tmall.com/" target="blank">来趣网络生活服务</a>, 淘宝聚划算宁波站 </span>
+            
+        </footer>
+
+        <!-- /* Handlebars templates start */ -->
+        <script type="text/x-handlebars" data-template-name="header">
+            <div class="head">
+                <div class="logo">来趣本地生活 | <span class="subtitle">电子选号系统 - powerd by AppFog</span></div>
+            </div>
+        </script>
+
+        <!-- step bar template -->
+        <script type="text/x-handlebars" data-template-name="stepbar">
+            <nav class="breadcrumbs">
+                <ul>
+                {{#each content}} 
+                    {{#if isActive}}
+                        <li><a class="active">{{order}}.{{title}}</a></li>
+                    {{else}}
+                        <li><a>{{order}}.{{title}}</a></li>
+                    {{/if}}
+                {{/each}}
+                </ul>
+            </nav>
+        </script>
+       
+        <!-- each step content template --> 
+        <!-- step 1. exchange -->
+        <script type="text/x-handlebars" data-template-name="exchange">
+                    <div class="span10 exchange_content well">
+                        <div class="span6">
+                            <form class="form-horizontal exchange_form">
+                                {{#view tagName="div" class="control-group" classBinding="view.couponClass"}}
+                                  <label class="control-label" for="coupon_id">团购券号：</label>
+                                  <div class="controls">
+                                        {{view Ember.TextField id="coupon_id" valueBinding="coupon_id"}}
+                                        <span class="help-inline">
+                                            {{#if view.parentView.coupon_error}}
+                                              {{view.parentView.error_msg}}
+                                            {{/if}}
+                                        </span>
+                                  </div>
+                                {{/view}}
+                                {{#view tagName="div" class="control-group" classBinding="view.mobileClass"}}
+                                  <label class="control-label" for="last_four_mobile">手机后四位：</label>
+                                  <div class="controls">
+                                    {{view Ember.TextField id="last_four_mobile" valueBinding="last_four_mobile"}}
+                                    <span class="help-inline">
+                                        {{#if view.parentView.mobile_error}}
+                                          {{view.parentView.error_msg}}
+                                        {{/if}}
+                                    </span>
+                                  </div>
+                                {{/view}}
+                                <div class="control-group">
+                                    <div class="controls">
+                                    <button type="submit" {{action checkCoupon target="view"}} class="btn btn-primary btn-larger">我要兑换</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="span3 exchange_tips">
+                            <h3>温馨提醒：</h3>
+                            <p>1、请在团购券号输入框中输入您收到的验证短信中的10位数字号码</p>
+                            <p>2、请在手机后四位输入框中输入您下单填写的手机号码的后4位数字</p>
+                        </div>
+                    </div>
+        </script>
+        
+        <!-- step 2. exchange confirm -->
+        <script type="text/x-handlebars" data-template-name="exchange_confirm">
+            <form class="form-horizontal span8 well exchange_confirm_form">
+                <fieldset>
+                    <legend>选择兑换份数</legend>
+                    <div class="control-group">
+                      <label class="control-label" for="coupon_id_confirm">团购券号：</label>
+                      <div class="controls"><span class="input-small uneditable-input" id="coupon_id_confirm">{{coupon_id}}</span></div>
+                    </div>
+                    <div class="control-group">
+                      <label class="control-label" for="remain_nums_confirm">剩余数量：</label>
+                      <div class="controls"><span class="input-small uneditable-input" id="remain_nums_confirm">{{remain_nums}} 份</span></div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="exchange_nums">选择兑换份数：</label>
+                        <div class="controls">
+                          {{view Ember.Select 
+                            id="exchange_nums" contentBinding="controllers.stepsController.exchange_choices" 
+                            optionLabelPath="content.id" optionValuePath="content.id"
+                            valueBinding="controllers.stepsController.user_data.exchange_nums"
+                            class="span1"}}
+                        </div>
+                    </div>
+                    {{#if packages.length}}
+                        <div class="control-group">
+                            <label class="control-label" for="exchange_nums">可选套餐：</label>
+                            <div class="controls">
+                                  <div class="span5">
+                                  <div class="row">
+                                      {{#each mobilePackage in packages}}
+                                          {{#if mobilePackage.isSelected}}
+                                            <div class="span2 package_cell package_cell_selected" {{action choosePackage mobilePackage target="controller"}}>✔{{mobilePackage.packageName}}</div>
+                                          {{else}}
+                                            <div class="span2 package_cell" {{action choosePackage mobilePackage target="controller"}}>{{mobilePackage.packageName}}</div>
+                                          {{/if}}
+                                      {{/each}}
+                                  </div>
+                                  </div>
+                            </div>
+                        </div>
+                    {{/if}}
+                    <div class="control-group">
+                        <div class="form-actions">
+                        <button type="submit" {{action confirmExchange target="view"}} class="btn btn-primary">确认兑换</button>
+                        <button type="reset" {{action cancelExchange target="view"}} class="btn">取消兑换</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </script>
+        <!-- <div class="mobile_preview span2 well"> </div> -->
+
+        <!-- step 3. mobile-choose -->
+        <script type="text/x-handlebars" data-template-name="mobile_choose">
+                    <div class="row">
+                        <div class="span9">
+                            {{#each currentMobiles}}
+                                <div class="span3 outer_mobile_cell" {{action choose this on="click" target="view"}}>
+                                    <div class="row mobile_cell">
+                                        <span class="span2 number_cell">{{mobile}}</span>
+                                        <span class="span1">
+                                            {{#if isUsed}}
+                                                <span class="red">✘</span>
+                                            {{else}}
+                                                {{#if isChoosed}}
+                                                    <span class="green">✔</span>
+                                                {{else}}
+                                                    ✚
+                                                {{/if}}
+                                            {{/if}}
+                                        </span>
+                                    </div>
+                                </div>
+                            {{/each}}
+                        </div>
+                    </div>
+                    <div class="row pager">
+                        <div class="span9">
+                              {{#view tagName="div" class="previous span2" classBinding="controller.previousClass"}}
+                                <a href="#" {{action previousMobiles target="view.parentView"}}>&larr; 上一页</a>
+                              {{/view}}
+                              <div class="span5">
+                                <button type="submit" {{action submitMobiles target="view"}} class="btn btn-primary btn-larger">确认选号</button>
+                              </div>
+                              {{#view tagName="div" class="next span2" classBinding="controller.nextClass"}}
+                                <a href="#" {{action nextMobiles target="view.parentView"}}>下一页 &rarr;</a>
+                              {{/view}}
+                        </div>
+                    </div>
+        </script> 
+
+        <!-- step 4. supply-address -->
+        <script type="text/x-handlebars" data-template-name="supply_address">
+            <form class="form-horizontal span9 well" id="suppley_address_form">
+                <fieldset>
+                <legend>收货信息</legend>
+                {{#view tagName="div" class="control-group" classBinding="view.nameClass"}}
+                  <label class="control-label" for="receiver_name">收货人姓名：</label>
+                  {{view Ember.TextField id="receiver_name" valueBinding="receiver_name" class="span4"}}
+                    <span class="help-inline">
+                        {{#if view.parentView.name_error}}
+                          {{view.parentView.error_msg}}
+                        {{/if}}
+                    </span>
+                {{/view}}
+                {{#view tagName="div" class="control-group" classBinding="view.mobileClass"}}
+                  <label class="control-label" for="receiver_mobile">收货人手机号码：</label>
+                  {{view Ember.TextField id="receiver_mobile" valueBinding="receiver_mobile" class="span4"}}
+                    <span class="help-inline">
+                        {{#if view.parentView.name_error}}
+                          {{view.parentView.error_msg}}
+                        {{/if}}
+                    </span>
+                {{/view}}
+                {{#view tagName="div" class="control-group" classBinding="view.addrClass"}}
+                  <label class="control-label" for="receiver_address">地区：</label>
+                  {{view Ember.Select 
+                    id="province"
+                    class="span2"
+                    contentBinding="view.parentView.district.provinces"
+                    optionLabelPath="content.name"
+                    optionValuePath="content.code"
+                    valueBinding="view.parentView.district.current_province"}}
+                    {{view Ember.Select 
+                      id="city"
+                      class="span2"
+                      contentBinding="view.parentView.district.cities"
+                      optionLabelPath="content.name"
+                      optionValuePath="content.code"
+                      valueBinding="view.parentView.district.current_city"}}
+                    {{view Ember.Select 
+                      id="area"
+                      class="span2"
+                      contentBinding="view.parentView.district.areas"
+                      optionLabelPath="content.name"
+                      optionValuePath="content.code"
+                      valueBinding="view.parentView.district.current_area"}}
+                {{/view}}
+                {{#view tagName="div" class="control-group" classBinding="view.addrClass"}}
+                  <label class="control-label" for="receiver_address">街道地址：</label>
+                  {{view Ember.TextField id="receiver_addr" valueBinding="receiver_addr" class="span5"}}
+                    <span class="help-inline">
+                        {{#if view.parentView.name_error}}
+                          {{view.parentView.error_msg}}
+                        {{/if}}
+                    </span>
+                {{/view}}
+                {{#view tagName="div" class="control-group" classBinding="view.remarkClass"}}
+                  <label class="control-label" for="remark">备注：</label>
+                  {{view Ember.TextField id="remark" valueBinding="remark" class="span6" placeholder="选填您的特殊需求，比如'我需要剪卡'"}}
+                    <span class="help-inline">
+                        {{#if view.parentView.name_error}}
+                          {{view.parentView.error_msg}}
+                        {{/if}}
+                    </span>
+                {{/view}}
+                <div class="control-group">
+                    <div class="controls">
+                    <button type="submit" {{action submitExpressInfo target="view"}} class="btn btn-primary btn-larger">确认收货信息</button>
+                    </div>
+                </div>
+                </fieldset>
+            </form>
+        </script>
+        
+        <!-- step 5. exchange-finish -->
+        <script type="text/x-handlebars" data-template-name="exchange_finish">
+            <div class="row">
+                <div class="span6 announcement well">
+                    <div class="row headRow"> <span class="check">✔</span><strong>您的团购券号已经兑换成功！</strong></div>
+                    <div class="row"> 
+                        感谢您对来趣的支持, 我们会尽快为您发货，敬请期待。
+                    </div>
+                    <div class="row">
+                        <button type="submit" {{action chooseOn target="view"}} class="span2 btn btn-primary btn-larger">继续选号</button>
+                        <button type="submit" {{action gotoShop target="view"}} class="span2 btn btn-primary btn-larger">到店铺逛逛</button>
+                    </div>
+                </div>
+            </div>
+        </script> 
+
+        <!-- /* Handlebars templates end */ -->
+
+
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+
+        <script src="scripts/bb2f6772.scripts.js"></script>
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <!--
+        <script>
+            var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+            (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+            g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+            s.parentNode.insertBefore(g,s)}(document,'script'));
+        </script> -->
+    </body>
+</html>

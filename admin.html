@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+        <title></title>
+        <meta name="description" content=""/>
+        <meta name="viewport" content="width=device-width"/>
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+        <link rel="stylesheet" href="styles/a47dadad.bootstrap.min.css"/>
+        <link rel="stylesheet" href="styles/877222c3.main.css"/>
+        <link rel="stylesheet" href="styles/1995d4f3.breadcrumbs.css"/>
+        <link rel="stylesheet" href="styles/06cc346d.breadcrumbs-slim.css"/>
+        <link rel="stylesheet" href="styles/6735b6e7.admin_style.css"/>
+
+        <script src="scripts/vendor/cf69c6f2.modernizr.min.js"></script>
+    </head>
+    <body>
+        <div id="mainapp"></div>
+        <footer> 
+            <span class="span6 offset3">© 2012 <a href="http://lqwlshfw.tmall.com/" target="blank">来趣网络生活服务</a>, 淘宝聚划算宁波站 </span>
+            
+        </footer>
+
+        <!-- /* Handlebars templates start */ -->
+        <script type="text/x-handlebars" data-template-name="header">
+            <div class="head">
+                <div class="logo">来趣本地生活   | <span class="subtitle">电子选号系统后台</span></div>
+            </div>
+        </script>
+
+        <!-- templates for admin -->
+        <script type="text/x-handlebars" data-template-name="admin_navbar">
+            <ul class="nav nav-list affix">
+              <li class="nav-header">管理</li>
+              <li class="active addMobileBar"><a href="#" {{action addMobile}}>手机号码录入</a></li>
+              <li class="managePackageBar"><a href="#" {{action managePackage}}>套餐管理</a></li>
+              <li class="manageOrderBar"><a href="#" {{action manageOrder}}>订单管理</a></li>
+              <li class="nav-header">查询</li>
+              <li class="searchMobileBar"><a href="#" {{action searchMobile}}>手机号码查询</a></li>
+              <li class="nav-header">系统</li>
+              <li class="logoutBar"><a href="#" {{action logOut}}>注销</a></li>
+            </ul>
+        </script>
+        <!-- admin login -->
+        <script type="text/x-handlebars" data-template-name="admin_login">
+          <form class="form-horizontal span7 well admin_login_form">
+                <fieldset>
+                    <legend>管理员登录</legend>
+                    {{#view tagName="div" class="control-group" classBinding="errorClass.username"}}
+                        <label class="control-label" for="username">用户名</label>
+                        <div class="controls">
+                          {{view Ember.TextField id="username" valueBinding="username" class="username"}} 
+                            <span class="help-inline">
+                                {{#if error.username}}
+                                {{error.username}}
+                                {{/if}}
+                            </span>
+                        </div>
+                    {{/view}}
+
+                    {{#view tagName="div" class="control-group" classBinding="errorClass.password"}}
+                        <label class="control-label" for="password">密码</label>
+                        <div class="controls">
+                          {{view Ember.TextField type="password" valueBinding="password" class="password"}} 
+                            <span class="help-inline">
+                                {{#if error.password}}
+                                {{error.password}}
+                                {{/if}}
+                            </span>
+                        </div>
+                    {{/view}}
+
+                    <div class="control-group">
+                        <div class="form-actions">
+                        <button type="submit" {{action login on="click" target="controller"}} class="btn btn-primary span2 btn-large">登录</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </script>
+        <!-- admin add mobile -->
+        <script type="text/x-handlebars" data-template-name="add_mobile">
+            <form class="form-horizontal span6 well add_mobile_form">
+                <fieldset>
+                    <legend>手机号码录入</legend>
+                    <div class="form_info">
+                        {{#if latestAddMobileResult}}
+                          <div class="alert alert-error">
+                            <button type="button" class="close" data-dismiss="alert">×</button>
+                            <h3>如下号码添加失败：</h3>
+                            {{latestAddMobileResult}}
+                          </div>
+                        {{/if}}
+                    </div>
+                    {{#view tagName="div" class="control-group" classBinding="productClass"}}
+                        <div class="controls">
+                          {{view Ember.Select 
+                            id="product" contentBinding="mobileProducts" 
+                            optionLabelPath="content.productName" optionValuePath="content.productId"
+                            valueBinding="content.productId" prompt="请选择一个产品" class="add_element"}}
+                            <span class="help-inline">
+                                {{#if productClass}}
+                                {{error_msg}}
+                                {{/if}}
+                            </span>
+                        </div>
+                    {{/view}}
+
+                    {{#view tagName="div" class="control-group" classBinding="packageClass"}}
+                        <div class="controls">
+                          {{view Ember.Select 
+                            id="package" contentBinding="packages" 
+                            optionLabelPath="content.packageName" optionValuePath="content.id"
+                            valueBinding="content.packageId" prompt="默认套餐" class="add_element"}}
+                            <span class="help-inline">
+                                {{#if packageClass}}
+                                {{error_msg}}
+                                {{/if}}
+                            </span>
+                        </div>
+                    {{/view}}
+
+                    <div class="control-group">
+                      <div class="controls">
+                        {{view Ember.Select 
+                          id="added_mobiles" contentBinding="addedMobiles" 
+                          optionLabelPath="content.mobile" optionValuePath="content.mobile"
+                          selectionBinding="choosedMobiles" class="add_element added_mobiles" multiple="multiple"}}
+                        </div>
+                    </div>
+
+                    {{#view tagName="div" class="control-group" classBinding="inputMobileClass"}}
+                      <div class="controls">
+                        <div class="input-prepend add_element">
+                          {{view Ember.TextField id="input_mobile" valueBinding="inputMobile" class="input_mobile" placeholder="输入手机号码" target="controller"}} 
+                          <span class="add-on" {{action addMobile target="controller"}}><i class="icon-plus"></i></span>
+                          <span class="add-on" {{action deleteMobile target="controller"}}><i class="icon-minus"></i></span>
+                          <span class="add-on"  data-toggle="modal" {{action uploadMobiles target="view.parentView"}}><i class="icon-upload"></i> 批量</span>
+                        </div>
+                        <div class="input-prepend">
+                        <span class="help-inline">
+                          {{#if view.parentView.mobileClass}}
+                              {{view.parentView.error_msg}}
+                          {{/if}}
+                        </span>
+                      </div>
+                    {{/view}}
+                    <div class="control-group">
+                        <div class="form-actions">
+                        <button type="submit" {{action saveMobiles on="click" target="controller"}}class="btn btn-primary span2 btn-large">提交</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+
+            <div class="modal hide fade" id="mobileModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="myModalLabel">批量号码导入</h3>
+              </div>
+              <div class="modal-body">
+                  {{view Ember.TextArea id="rawBatchMobiles" class="rawBatchMobiles" valueBinding="rawBatchMobiles" 
+                    placeholder="在此输入号码列表,可以用空格,Tab, 回车，逗号隔开！"}} 
+              </div>
+              <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+                <button class="btn btn-primary" {{action parseBatchMobiles target="view"}}>提交</button>
+              </div>
+            </div>
+
+        </script>
+        <!-- admin manage order-->
+        <script type="text/x-handlebars" data-template-name="manage_order">
+            <form class="form-inline filter_form well">
+                <div class="controls controls-row">
+                <label for="filter_order_type" class="filter_label">过滤条件：</label>
+                {{view Ember.Select 
+                    id="filter_order_type" contentBinding="orderTypes" 
+                    optionLabelPath="content.typeName" optionValuePath="content.typeValue"
+                    valueBinding="filter_order_type"  class="span3"}}
+                {{view Ember.TextField id="filter_order_id" valueBinding="filter_order_id" class="span3" placeholder="输入订单号"}}
+                {{view Ember.TextField id="filter_mobile" valueBinding="filter_mobile" class="span3" placeholder="输入所有号码"}}
+                </div>
+            </form>
+            <table class="table table-bordered table-striped">
+                  <thead>
+                    <tr> <th>订单号</th> <th class="span1">产品名</th> <th class="span1">所属套餐</th> <th>所选号码</th> <th>快递接收姓名</th> <th class="span2">快递接收地址</th>
+                      <th>快递接收手机</th> <th>用户备注</th><th>申请时间</th> <th style="width:125px;">快递单号</th> <th>操作</th> 
+                    </tr>
+                  </thead>
+                  <tbody>
+                     {{#each record in pageContent}}
+                        {{#view tagName="tr" classBinding="record.mobile"}}
+                          <td>{{record.orderId}}</td>
+                          <td>{{record.productName}}</td>
+                          <td>
+                            {{#if record.mobilePackage}}
+                              {{record.mobilePackage.packageName}}
+                            {{else}}
+                              默认套餐
+                            {{/if}}
+                          </td>
+                          <td>{{record.mobile}}</td>
+                          <td>{{record.receiverName}}</td>
+                          <td>{{record.receiverAddr}}</td>
+                          <td>{{record.receiverMobile}}</td>
+                          <td>{{record.remark}}</td>
+                          <td>{{record.addDate}}</td>
+                          <td>
+                            {{#if record.insertingExpressOrder}}
+                              {{view Ember.TextField class="expressOrder input-middle" placeholder="输入快递单号"}}
+                            {{else}}
+                              {{#if record.expressOrder}}
+                                  {{record.expressOrder}}
+                              {{else}}
+                                未录入
+                              {{/if}}
+                            {{/if}}
+                          </td>
+                          <td>
+                            <div class="btn-toolbar">
+                              <div class="btn-group btn-group-vertical">
+                                {{#if record.insertingExpressOrder}}
+                                <button class="btn" {{action saveExpressOrder record target="controller"}}><i class="icon-ok"></i> 保存</button>
+                                {{else}}
+                                <button class="btn" {{action updateExpressOrder record target="controller"}}><i class="icon-edit"></i>输入单号</button>
+                                {{/if}}
+                              </div>
+                            </div>
+                          </td>
+                        {{/view}}
+                     {{/each}}
+                  </tbody>
+            </table>
+            <ul class="pager well">
+              {{#view tagName="li" class="previous" classBinding="prevPageClass"}}
+                <a href="#" {{action prevPage target="controller"}}>&larr;</a>
+              {{/view}}
+              <li class="goto">
+                第 {{view Ember.TextField id="page_index" class="page_index" valueBinding="pageIndexChange"}}页/{{totalPages}}
+              </li>
+              {{#view tagName="li" class="next" classBinding="nextPageClass"}}
+                <a href="#" {{action nextPage target="controller"}}>&rarr;</a>
+              {{/view}}
+              <li class="goto">
+                <a href="#" {{action refreshOrder target="controller"}}><i class="icon-refresh"></i></a>
+              </li>
+              <li class="show_status">
+                当前显示{{showStatus}}条数据
+              </li>
+            </ul>
+        </script>
+        <!-- admin search mobile-->
+        <script type="text/x-handlebars" data-template-name="search_mobile">
+            <form class="form-inline filter_form well">
+              <div class="controls controls-row">
+              <label class="filter_label">过滤条件：</label>
+                {{view Ember.Select 
+                  id="product" contentBinding="mobileProducts" 
+                  optionLabelPath="content.productName" optionValuePath="content.productId"
+                  valueBinding="filter_product_id" prompt="根据产品过滤" class="span4"}}
+                {{view Ember.Select 
+                    id="filter_mobile_type" contentBinding="mobileTypes" 
+                    optionLabelPath="content.typeName" optionValuePath="content.typeValue"
+                    valueBinding="filter_mobile_type"  class="span3"}}
+                {{view Ember.TextField id="filter_mobile" valueBinding="filter_mobile" class="span3" placeholder="输入所有号码"}}
+                </div>
+            </form>
+            <table class="table table-bordered table-striped">
+                  <thead>
+                    <tr> <th>产品名称</th> <th>所属套餐</th><th>手机号码</th> <th>使用状态</th> <th>添加时间</th> <th>操作</th></tr>
+                  </thead>
+                  <tbody>
+                     {{#each record in pageContent}}
+                        {{#view tagName="tr" classBinding="record.mobile"}}
+                          <td>{{record.productName}}</td>
+                          <td>
+                          {{#if record.mobilePackage}}
+                            {{record.mobilePackage.packageName}}
+                          {{else}}
+                            默认套餐
+                          {{/if}}
+                          </td>
+                          <td>{{record.mobile}}</td>
+                          <td>{{record.isUsed}}</td>
+                          <td>{{record.addDate}}</td>
+                          <td>
+                            <div class="btn-toolbar">
+                              <div class="btn-group">
+                                <button class="btn" {{action removeMobile record target="controller"}}><i class="icon-remove"></i> 删除</button>
+                              </div>
+                              <div class="btn-group">
+                                {{#if record.isUsed}}
+                                  <button class="btn" {{action markMobileUnused record target="controller"}}><i class="icon-trash"></i> 回收</button>
+                                {{else}}
+                                  <button class="btn" {{action markMobileUsed record target="controller"}}><i class="icon-check"></i> 使用</button>
+                                {{/if}}
+                              </div>
+                            </div>
+                          </td>
+                        {{/view}}
+                     {{/each}}
+                  </tbody>
+            </table>
+            <ul class="pager well">
+              {{#view tagName="li" class="previous" classBinding="prevPageClass"}}
+                <a href="#" {{action prevPage target="controller"}}>&larr;</a>
+              {{/view}}
+              <li class="goto">
+                第 {{view Ember.TextField id="page_index" class="page_index" valueBinding="pageIndexChange"}}页/{{totalPages}}
+              </li>
+              {{#view tagName="li" class="next" classBinding="nextPageClass"}}
+                <a href="#" {{action nextPage target="controller"}}>&rarr;</a>
+              {{/view}}
+              <li class="goto">
+                <a href="#" {{action refreshOrder target="controller"}}><i class="icon-refresh"></i></a>
+              </li>
+              <li class="show_status">
+                当前显示{{showStatus}}条数据
+              </li>
+            </ul>
+        </script>
+
+        <script type="text/x-handlebars" data-template-name="manage_package">
+            <form class="form-horizontal span6 well manage_package_form">
+                <fieldset>
+                    <legend>套餐管理</legend>
+                    {{#if didPackageChange}}
+                      <div class="form_info alert">
+                            发现套餐数据存在变更, 请不要忘了保存提交哦。 
+                      </div>
+                    {{/if}}
+                    {{#view tagName="div" class="control-group" classBinding="productClass"}}
+                        <div class="controls">
+                          {{view Ember.Select 
+                            id="product" contentBinding="mobileProducts" 
+                            optionLabelPath="content.productName" optionValuePath="content.productId"
+                            valueBinding="choosedProductId" prompt="请选择一个产品" class="add_element"}}
+                            <span class="help-inline">
+                                {{#if productClass}}
+                                {{error_msg}}
+                                {{/if}}
+                            </span>
+                        </div>
+                    {{/view}}
+                    <div class="control-group">
+                      <div class="controls">
+                        {{view Ember.Select 
+                          id="packages" contentBinding="packages" 
+                          optionLabelPath="content.packageName" optionValuePath="content.id"
+                          selectionBinding="choosedPackages" class="packages add_element" multiple="multiple"}}
+                        </div>
+                    </div>
+
+                    {{#view tagName="div" class="control-group" classBinding="inputMobileClass"}}
+                      <div class="controls">
+                          {{view Ember.TextField id="input_package" valueBinding="inputPackage" class="input_package" placeholder="输入套餐名（限10个字）" target="controller" maxlength=10}} 
+                        <div class="input-prepend">
+                        <span class="help-inline">
+                          {{#if view.parentView.mobileClass}}
+                              {{view.parentView.error_msg}}
+                          {{/if}}
+                        </span>
+                      </div>
+                    {{/view}}
+                    <div class="control-group package_manage_bar">
+                      <div class="controls">
+                        <div class="input-prepend ">
+                            <span class="add-on" {{action addPackage target="controller"}}><i class="icon-plus"></i> 添加</span>
+                            <span class="add-on" {{action editPackage target="controller"}}><i class="icon-edit"></i> 修改</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="form-actions">
+                        <button type="submit" {{action savePackages on="click" target="controller"}}class="btn btn-primary span2 btn-large">保存</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+
+            <div class="modal hide fade" id="mobileModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="myModalLabel">批量号码导入</h3>
+              </div>
+              <div class="modal-body">
+                  {{view Ember.TextArea id="rawBatchMobiles" class="rawBatchMobiles" valueBinding="rawBatchMobiles" 
+                    placeholder="在此输入号码列表,可以用空格,Tab, 回车，逗号隔开！"}} 
+              </div>
+              <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+                <button class="btn btn-primary" {{action parseBatchMobiles target="view"}}>提交</button>
+              </div>
+            </div>
+
+        </script>
+
+        
+        <!-- /* Handlebars templates end */ -->
+
+
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+        <script src="scripts/b7fc623d.scripts.js"></script>
+
+
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <!--
+        <script>
+            var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+            (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+            g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+            s.parentNode.insertBefore(g,s)}(document,'script'));
+        </script> -->
+    </body>
+</html>

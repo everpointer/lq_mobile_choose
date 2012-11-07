@@ -1,0 +1,7 @@
+<appwizard><introduction><name></name><author>lqmobile</author><icon></icon><homepage></homepage><description><![CDATA[laiqu's mobile number choose system!]]></description></introduction><platform><services><service></service></services><appconfig><tpl><![CDATA[
+name: <<appname>>
+version: <<version>>
+version: 2
+...
+
+]]></tpl></appconfig></platform><code><initScript>2.lqmoile.sinaapp.com</initScript></code></appwizard>
